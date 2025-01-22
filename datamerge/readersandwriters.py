@@ -232,7 +232,7 @@ def readConfigObjFromYaml(filename: Path) -> readConfigObj:
         configDict = yaml.safe_load(f)
     if "readConfig" not in configDict.keys():
         return readConfigObj(HDFPathsObj(), HDFDefaultsObj())
-    print(configDict["readConfig"])
+    logging.debug(configDict["readConfig"])
     HDFPaths = HDFPathsObj(**configDict["readConfig"].get("HDFPaths", {}))
     HDFDefaults = HDFDefaultsObj(**configDict["readConfig"].get("HDFDefaults", {}))
     return readConfigObj(HDFPaths, HDFDefaults)
@@ -304,7 +304,7 @@ def SDOListFromFiles(
         assert (
             fname.is_file()
         ), f"filename {fname} does not exist. Please supply valid filenames"
-        print(fname)
+        # print(fname)
         scatteringDataList += [scatteringDataObjFromNX(fname, readConfig)]
     return scatteringDataList
 
@@ -322,4 +322,4 @@ if __name__ == "__main__":
     )
 
     mco = mergeConfigObjFromYaml(Path(".", "tests", "mergeConfigExample.yaml"))
-    print(mco)
+    logging.debug(mco)

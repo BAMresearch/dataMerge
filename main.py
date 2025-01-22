@@ -111,7 +111,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
     adict = vars(args)
-    print(adict)
+    # print(adict)
 
     try:
         dataList = SDOListFromFiles(
