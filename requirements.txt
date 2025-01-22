@@ -4,3 +4,5 @@ h5py
 versioneer
 pyyaml
 nexusformat
+matplotlib
+numpy

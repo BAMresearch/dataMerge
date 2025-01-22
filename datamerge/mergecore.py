@@ -84,8 +84,8 @@ class mergeCore:
             if drange.scatteringData.configuration == config
         ]
         if len(resultList) == 0:
-            # logging.debug(
-            #     f"Did not find a matching range for {rangeConfig.findByConfig=}"
+            # logging.info(
+            #     f"Did not find a matching range for {config} specified in the mergeConfig"
             # )
             return None  # Nothing to do, no matching ranges found
         elif (len(resultList) == 1) and Highlander:
@@ -193,10 +193,17 @@ class mergeCore:
                     oRange is not None
                 ), f"Cannot find a singular matching dataset with configuration {drange.autoscaleToConfig} to scale to, maybe none, maybe too many?"
 
+                # apply the q limit mask to oRange mask: 
+                for xRange in [oRange, drange]:
+                    xRange.scatteringData.Mask |= xRange.scatteringData.returnMaskByQRange(
+                        qMin=xRange.qMinPreset, 
+                        qMax=xRange.qMaxPreset
+                    )
                 # assert drange.autoscaleToRange <= len(
                 #     self.ranges
                 # ), f"{drange.autoscaleToRange=} must refer to an index within the number of ranges available {len(self.ranges)}"
                 # oRange = self.ranges[drange.autoscaleToRange]
+                logging.info(f'trying to find scaling factor between {drange.scatteringData.configuration=} and {oRange.scatteringData.configuration=}')
                 fs = findScaling_noPandas(
                     oRange.scatteringData,  # original data, asPandas() returns copy
                     drange.scatteringData,

@@ -100,6 +100,21 @@ class gimmeItems:  # used to be MutableMappingMixin(MutableMapping)
 
 # end copy
 
+def numpy_float_array_converter(value):
+    if value is None:
+        return None
+    try:
+        return np.array(value, dtype=float)
+    except (TypeError, ValueError):
+        raise ValueError(f"Cannot convert {value} to float.")
+
+def numpy_bool_array_converter(value):
+    if value is None:
+        return None
+    try:
+        return np.array(value, dtype=bool)
+    except (TypeError, ValueError):
+        raise ValueError(f"Cannot convert {value} to float.")
 
 @define
 class scatteringDataObj(gimmeItems):
@@ -115,35 +130,37 @@ class scatteringDataObj(gimmeItems):
         # default=np.array([0], dtype=float),
         validator=QChecker,
         eq=cmp_using(eq=np.array_equal),
-        converter=np.array,
+        converter=numpy_float_array_converter,
     )
     I: np.ndarray = field(
         # default=np.array([0], dtype=float),
         validator=IChecker,
         eq=cmp_using(eq=np.array_equal),
-        converter=np.array,
+        converter=numpy_float_array_converter,
     )
     ISigma: np.ndarray = field(
         # default=np.array([0], dtype=float),
         validator=validators.optional(IChecker),
         eq=cmp_using(eq=np.array_equal),
-        converter=np.array,
+        converter=numpy_float_array_converter,
     )
     wt: Optional[np.ndarray] = field(
         default=None,
         validator=validators.optional(IChecker),
         eq=cmp_using(eq=np.array_equal),
+        converter = numpy_float_array_converter
     )
     Mask: Optional[np.ndarray] = field(
         default=None,
         validator=validators.optional(IChecker),
         eq=cmp_using(eq=np.array_equal),
-        # converter=np.array,
+        converter = numpy_bool_array_converter
     )
     QSigma: Optional[np.ndarray] = field(
         default=None,
         validator=validators.optional(IChecker),
         eq=cmp_using(eq=np.array_equal),
+        converter = numpy_float_array_converter
     )
     configuration: int = field(
         default=-1, validator=validators.instance_of(int), converter=int
@@ -223,9 +240,23 @@ class scatteringDataObj(gimmeItems):
         """Return the maximum Q"""
         return self.Q.max()
 
+    def qMinNonMasked(self) -> float:
+        """Return the minimum Q where the mask is False"""
+        print(f'{self.Q.shape=}, {self.Mask.shape=}')
+        print(f'{self.Mask.sum()=}')
+        return self.Q[~self.Mask].min()
+
+    def qMaxNonMasked(self) -> float:
+        """Return the maximum Q"""
+        return self.Q[~self.Mask].max()
+
     def qRange(self) -> List[float]:
         """Return the Q range"""
         return list([self.qMin(), self.qMax()])
+
+    def qRangeNonMasked(self) -> List[float]:
+        """Return the Q range"""
+        return list([self.qMinNonMasked(), self.qMaxNonMasked()])
 
     def returnMaskByQRange(
         self, qMin: Optional[float] = None, qMax: Optional[float] = None
@@ -234,12 +265,29 @@ class scatteringDataObj(gimmeItems):
             qMin = self.qMin()
         if qMax is None:
             qMax = self.qMax()
+        print(f'returnMaskByQRange {qMin=}, {qMax=}, masked: {((self.Q < qMin) | (self.Q > qMax)).sum()}')
         return (self.Q < qMin) | (self.Q > qMax)
 
     # def updateMaskByQRange(self, maskByQRange: np.ndarray) -> None:
     #     """Updates the internal data mask with the q range mask. Not sure if useful"""
     #     self.Mask = np.array(self.Mask, dtype=bool) | maskByQRange
     #     return
+
+def optional_float_converter(value):
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"Cannot convert {value} to float.")
+
+def optional_int_converter(value):
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"Cannot convert {value} to float.")
 
 
 @define
@@ -262,27 +310,30 @@ class rangeConfigObj(gimmeItems):
         validator=validators.optional(
             [validators.ge(0), validators.instance_of(float)]
         ),
+        converter = optional_float_converter
     )
     qMaxPreset: Optional[float] = field(
         default=None,
         validator=validators.optional(
             [validators.ge(0), validators.instance_of(float)]
         ),
+        converter = optional_float_converter
     )
     autoscaleToConfig: Optional[int] = field(
         default=None,
         validator=validators.optional(validators.instance_of(int)),
+        converter = optional_int_converter
         # converter=int,
     )
     scale: float = field(
         default=1.0,
         validator=[validators.ge(0), validators.instance_of(float)],
-        # converter=float,
+        converter=float,
     )
     findByConfig: Optional[int] = field(
         default=None,
         validator=validators.optional(validators.instance_of(int)),
-        # converter=int,
+        converter = optional_int_converter
     )
 
 

@@ -34,20 +34,28 @@ import logging
 import pandas as pd
 from attrs import define, validators, field, cmp_using
 import numpy as np
+import copy 
 
 from datamerge.dataclasses import scatteringDataObj
+
+def object_copy_converter(value):
+    # Create a deepcopy to ensure the copy is independent of the original object
+    return copy.deepcopy(value)
 
 @define
 class findScaling_noPandas(object):
     """
     new version of findScaling, modified to take scatteringDataObj instead of pd.DataFrame. 
     """
-    dataset1: scatteringDataObj = field(validator=validators.instance_of(scatteringDataObj))
-    dataset2: scatteringDataObj = field(validator=validators.instance_of(scatteringDataObj))
+    # make sure we're working on copies. 
+    dataset1: scatteringDataObj = field(validator=validators.instance_of(scatteringDataObj), converter = object_copy_converter)
+    dataset2: scatteringDataObj = field(validator=validators.instance_of(scatteringDataObj), converter = object_copy_converter)
 
     backgroundFit: bool = field(default=True, validator=validators.instance_of(bool))
     doInterpolate: bool = field(default=True, validator=validators.instance_of(bool))
-    Mask: Optional[np.ndarray]=field(default=None, validator=validators.optional(validators.instance_of(np.ndarray)))
+
+    # internal
+    Mask: Optional[np.ndarray]=field(default=None, validator=validators.optional(validators.instance_of(np.ndarray)), init=False)
 
     sc: np.ndarray = field(
         default=np.array([1, 0], dtype=float),
@@ -57,17 +65,29 @@ class findScaling_noPandas(object):
 
     def run(self) -> None:
         # check Q
+        logging.debug('running findScaling_noPandas')
         if self.dataset2.Q.shape != self.dataset1.Q.shape:
+            logging.info('Q vectors are not the same shape, interpolating...')
             self.doInterpolate = True
         elif (self.dataset2.Q != self.dataset1.Q).any():
-            logging.warning("nonequal Q vectors, interpolating...")
+            logging.info("nonequal Q vectors, interpolating...")
             self.doInterpolate = True
 
+        logging.debug(f'Q limits of datasets before interpolation: {self.dataset1.qMinNonMasked()=:0.02f} {self.dataset1.qMaxNonMasked()=:0.02f}, {self.dataset2.qMinNonMasked()=:0.02f} {self.dataset2.qMaxNonMasked()=:0.02f}')
+        # we only need to match the overlapping range: 
+        overlappingQLimits = (
+            np.maximum(self.dataset1.qMinNonMasked(), self.dataset2.qMinNonMasked()), 
+            np.minimum(self.dataset1.qMaxNonMasked(), self.dataset2.qMaxNonMasked()))
+        self.dataset1.Mask |= self.dataset1.returnMaskByQRange(overlappingQLimits[0], overlappingQLimits[1])
+        self.dataset2.Mask |= self.dataset2.returnMaskByQRange(overlappingQLimits[0], overlappingQLimits[1])
+        self.dataset1.updateScaledMaskedValues(maskArray=self.dataset1.Mask, scaling=1.0)
+        self.dataset2.updateScaledMaskedValues(maskArray=self.dataset2.Mask, scaling=1.0)
+        # print(f'{self.dataset1=}, {self.dataset2=}')
         if self.doInterpolate:
             self.dataset2 = self.interpolate(
                 dataset=self.dataset2, interpQ=self.dataset1.Q
             )
-
+        logging.debug(f'Q limits of datasets after interpolation: {self.dataset1.qMinNonMasked()=:0.02f} {self.dataset1.qMaxNonMasked()=:0.02f}, {self.dataset2.qMinNonMasked()=:0.02f} {self.dataset2.qMaxNonMasked()=:0.02f}')
         self.Mask = np.zeros(self.dataset1.Q.shape, dtype=bool)  # none masked
         self.Mask |= self.dataset1.Mask
         self.Mask |= self.dataset2.Mask
@@ -110,9 +130,10 @@ class findScaling_noPandas(object):
         # interpolator (linear) to equalize Q.
         fI = interp1d(dataset.Q, dataset.I, kind="linear", bounds_error=False)
         fE = interp1d(
-            dataset.I, dataset.ISigma, kind="linear", bounds_error=False
+            dataset.Q, dataset.ISigma, kind="linear", bounds_error=False
         )
 
+        logging.debug(f'{dataset.Q=}, {dataset.I=}, {dataset.ISigma=}, {interpQ=}')
         # not a full copy!
         dst = scatteringDataObj(
             Q = interpQ,
@@ -120,6 +141,7 @@ class findScaling_noPandas(object):
             ISigma = fE(interpQ),
             Mask = np.invert(np.isfinite(fI(interpQ)) & np.isfinite(fE(interpQ))),  # none masked that are finite
         )
+        logging.debug(f'{dst=}')
 
         return dst
 

@@ -197,7 +197,7 @@ def outputToNX(
     nxf[f"/datamerge/result/Q"].attrs["resolutions"] = "QSigma"
     # CHECK: this should be automatic no?
     # # set the default path to follow
-    nxf.attrs["default"] = "datamerge"
+    nxf.attrs["default"] = "entry"
     nxf[f"/datamerge"].attrs["default"] = "result"
     # nxf[f"/datamerge/result"].attrs["default"] = "I"
 
@@ -214,6 +214,7 @@ def outputToNX(
     nxf["/datamerge/result"].attrs["canSAS_class"] = "SASdata"
     nxf["/datamerge/result"].attrs["I_axes"] = "Q"
     nxf["/datamerge/result"].attrs["Q_indices"] = 0
+    nxf["/datamerge/result"].attrs["default"] = "I"
     nxf["/datamerge/result/Q"].attrs["units"] = mco.outputQUnits
     nxf["/datamerge/result/I"].attrs["units"] = mco.outputIUnits
     # why doesn't this path exist?
