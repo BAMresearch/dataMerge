@@ -11,7 +11,7 @@ readConfig: # You can adjust the read configuration here:
   HDFDefaults: # in case nothing is found in the paths, you can set defaults for some here:
     sampleName: 'unknown sample name'
     sampleOwner: 'unknown sample owner'
-    configuration: 0
+    configuration: '-1'
     IUnits: '1/(m sr)'
     QUnits: '1/nm'
 # Output units can be set, but conversion is not implemented yet. 

@@ -162,11 +162,11 @@ class scatteringDataObj(gimmeItems):
         eq=cmp_using(eq=np.array_equal),
         converter = numpy_float_array_converter
     )
-    configuration: int = field(
-        default=-1, validator=validators.instance_of(int), converter=int
+    configuration: str = field(
+        default='-1', validator=validators.instance_of(str), converter=str
     )
     configurations: List[
-        int
+        str
     ] = field(  # in case it's a merged dataset containing multiple configurations
         default=Factory(list), validator=validators.instance_of(list)
     )
@@ -289,6 +289,15 @@ def optional_int_converter(value):
     except (TypeError, ValueError):
         raise ValueError(f"Cannot convert {value} to float.")
 
+def optional_str_converter(value):
+    if value is None:
+        return None
+    try:
+        return str(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"Cannot convert {value} to float.")
+
+
 
 @define
 class rangeConfigObj(gimmeItems):
@@ -319,10 +328,10 @@ class rangeConfigObj(gimmeItems):
         ),
         converter = optional_float_converter
     )
-    autoscaleToConfig: Optional[int] = field(
+    autoscaleToConfig: Optional[str] = field(
         default=None,
-        validator=validators.optional(validators.instance_of(int)),
-        converter = optional_int_converter
+        validator=validators.optional(validators.instance_of(str)),
+        converter = optional_str_converter
         # converter=int,
     )
     scale: float = field(
@@ -330,10 +339,10 @@ class rangeConfigObj(gimmeItems):
         validator=[validators.ge(0), validators.instance_of(float)],
         converter=float,
     )
-    findByConfig: Optional[int] = field(
+    findByConfig: Optional[str] = field(
         default=None,
-        validator=validators.optional(validators.instance_of(int)),
-        converter = optional_int_converter
+        validator=validators.optional(validators.instance_of(str)),
+        converter = optional_str_converter
     )
 
 
@@ -371,8 +380,8 @@ class HDFDefaultsObj(gimmeItems):
     sampleOwner: str = field(
         default="", validator=validators.instance_of(str), converter=str
     )
-    configuration: int = field(
-        default=1, validator=validators.instance_of(int), converter=int
+    configuration: str = field(
+        default=1, validator=validators.instance_of(str), converter=str
     )
     IUnits: str = field(
         default="1/(m sr)", validator=validators.instance_of(str), converter=str
@@ -504,7 +513,7 @@ class supplementaryDataObj(gimmeItems):
 
     # supplementary information
     configurations: List[
-        int
+        str
     ] = field(  # in case it's a merged dataset containing multiple configurations
         default=Factory(list), validator=validators.instance_of(list)
     )

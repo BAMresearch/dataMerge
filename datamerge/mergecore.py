@@ -76,7 +76,7 @@ class mergeCore:
         return
 
     def findRangeByConfig(self, config: str, Highlander: bool = True):
-        # Returns the range matching a configuration number. The Highlander option returns a single entry,
+        # Returns the range matching a configuration ID. The Highlander option returns a single entry,
         # will return a list, RangeConfigObj or None
         resultList = [
             drange
@@ -104,13 +104,13 @@ class mergeCore:
         """
         Gets the ranges list from the configuration yaml, and applies the requested
         range settings to the rangelist in self.ranges.
-        Range configuration updates can be specified by rangeId or by a findByConfig number.
+        Range configuration updates can be specified by rangeId or by a findByConfig ID.
         """
         if len(rangesConfigList) == 0:
             return  # nothing to do
         for rangeConfig in rangesConfigList:
             # find out if specified by rangeId or findByConfig
-            if rangeConfig.rangeId == -1:  # find by configuration number
+            if rangeConfig.rangeId == -1:  # find by configuration ID
                 assert (
                     rangeConfig.findByConfig is not None
                 ), "if rangeId is set to -1, a findByConfig number must be specified"
@@ -235,7 +235,7 @@ class mergeCore:
 
             # determine configurations that went in to the concatenated data:
             for sd in scattering_data_per_range:
-                if sd.configuration != -1:
+                if sd.configuration != '-1':
                     cfgs += [sd.configuration]
                 if len(sd.configurations) > 0:
                     cfgs += [i for i in sd.configurations]
@@ -278,7 +278,7 @@ class mergeCore:
                         0
                     ].sampleName,  #  not sure how this deals with none
                     sampleOwner=scattering_data_per_range[0].sampleOwner,
-                    configuration=-1,  # unspecified
+                    configuration='-1',  # unspecified
                     configurations=cfgs,
                 )
             except np.VisibleDeprecationWarning:  # when would this occur?
@@ -317,7 +317,7 @@ class mergeCore:
                         0
                     ].sampleName,  #  not sure how this deals with none
                     sampleOwner=scattering_data_per_range[0].sampleOwner,
-                    configuration=-1,
+                    configuration='-1',  # unspecified
                     configurations=cfgs,
                 )
 
@@ -338,7 +338,7 @@ class mergeCore:
             Mask=scattering_data.Mask[nonempty_bin_index],
             sampleName=scattering_data.sampleName,  #  not sure how this deals with none
             sampleOwner=scattering_data.sampleOwner,
-            configuration=-1,
+            configuration='-1', # unspecified
             configurations=cfgs,
         )
         return

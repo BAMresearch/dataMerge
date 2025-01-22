@@ -27,7 +27,7 @@ Input files can be provided as a list on the command line, or as a path to a dir
 
 ## Input processing
 
-Input files are read, their qmin and qmax determined, and optionally clipped to a range specified in the datamerge configuration file. These clipping settings can be set for none, some or all input files, either based on index (input files are sorted with smallest qmin first), or based on configuration setting number. 
+Input files are read, their qmin and qmax determined, and optionally clipped to a range specified in the datamerge configuration file. These clipping settings can be set for none, some or all input files, either based on index (input files are sorted with smallest qmin first), or based on configuration setting ID. 
 
 ## Autoscaling
 
