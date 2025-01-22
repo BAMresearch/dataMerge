@@ -67,10 +67,10 @@ class findScaling_noPandas(object):
         # check Q
         logging.debug('running findScaling_noPandas')
         if self.dataset2.Q.shape != self.dataset1.Q.shape:
-            logging.info('Q vectors are not the same shape, interpolating...')
+            logging.debug('Q vectors are not the same shape, interpolating...')
             self.doInterpolate = True
         elif (self.dataset2.Q != self.dataset1.Q).any():
-            logging.info("nonequal Q vectors, interpolating...")
+            logging.debug("nonequal Q vectors, interpolating...")
             self.doInterpolate = True
 
         logging.debug(f'Q limits of datasets before interpolation: {self.dataset1.qMinNonMasked()=:0.02f} {self.dataset1.qMaxNonMasked()=:0.02f}, {self.dataset2.qMinNonMasked()=:0.02f} {self.dataset2.qMaxNonMasked()=:0.02f}')

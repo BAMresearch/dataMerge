@@ -203,7 +203,7 @@ class mergeCore:
                 #     self.ranges
                 # ), f"{drange.autoscaleToRange=} must refer to an index within the number of ranges available {len(self.ranges)}"
                 # oRange = self.ranges[drange.autoscaleToRange]
-                logging.info(f'trying to find scaling factor between {drange.scatteringData.configuration=} and {oRange.scatteringData.configuration=}')
+                logging.debug(f'trying to find scaling factor between {drange.scatteringData.configuration=} and {oRange.scatteringData.configuration=}')
                 fs = findScaling_noPandas(
                     oRange.scatteringData,  # original data, asPandas() returns copy
                     drange.scatteringData,
@@ -212,7 +212,7 @@ class mergeCore:
                 fs.run()
                 drange.scale = float(fs.sc[0])
                 logging.info(
-                    f"Scaling added to rangeindex: {drange.rangeId}: {float(fs.sc[0])}"
+                    f"Scaling added to rangeindex: {drange.rangeId}, congfiguration: {drange.scatteringData.configuration} : {float(fs.sc[0])}"
                 )
         return
 
