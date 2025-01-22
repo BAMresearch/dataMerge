@@ -242,8 +242,8 @@ class scatteringDataObj(gimmeItems):
 
     def qMinNonMasked(self) -> float:
         """Return the minimum Q where the mask is False"""
-        print(f'{self.Q.shape=}, {self.Mask.shape=}')
-        print(f'{self.Mask.sum()=}')
+        # print(f'{self.Q.shape=}, {self.Mask.shape=}')
+        # print(f'{self.Mask.sum()=}')
         return self.Q[~self.Mask].min()
 
     def qMaxNonMasked(self) -> float:
@@ -265,7 +265,7 @@ class scatteringDataObj(gimmeItems):
             qMin = self.qMin()
         if qMax is None:
             qMax = self.qMax()
-        print(f'returnMaskByQRange {qMin=}, {qMax=}, masked: {((self.Q < qMin) | (self.Q > qMax)).sum()}')
+        # print(f'returnMaskByQRange {qMin=}, {qMax=}, masked: {((self.Q < qMin) | (self.Q > qMax)).sum()}')
         return (self.Q < qMin) | (self.Q > qMax)
 
     # def updateMaskByQRange(self, maskByQRange: np.ndarray) -> None:
