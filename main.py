@@ -114,8 +114,9 @@ if __name__ == "__main__":
     # print(adict)
 
     try:
-        dataList = SDOListFromFiles(
-            filelistFromArgs(adict),
+        fileList = filelistFromArgs(adict)
+        dataList, okFiles = SDOListFromFiles(
+            fileList,
             readConfig=readConfigObjFromYaml(adict["configFile"]),
         )
     except KeyError:
@@ -126,6 +127,14 @@ if __name__ == "__main__":
             raise
         else:
             sys.exit(0)
+
+    if len(fileList) != len(okFiles):
+        logging.warning(
+            f"Only {len(okFiles)} out of {len(fileList)} files were read in successfully"
+        )
+        # list missing files:
+        missingFiles = set(fileList) - set(okFiles)
+        logging.warning(f"Missing files: {missingFiles}")
 
     m = mergeCore(
         mergeConfig=mergeConfigObjFromYaml(adict["configFile"]),

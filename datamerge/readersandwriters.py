@@ -33,7 +33,7 @@ import h5py
 from pathlib import Path
 import yaml
 import nexusformat.nexus as nx
-from typing import List
+from typing import List, Tuple, Union
 import logging
 
 
@@ -293,20 +293,28 @@ def mergeConfigObjFromYaml(filename: Path) -> mergeConfigObj:
 
 def SDOListFromFiles(
     fnames: List[Path], readConfig: readConfigObj
-) -> List[scatteringDataObj]:
+) -> Tuple[List[scatteringDataObj], List[Path]]:
     """
     Takes a list of file paths and a read configuration
     and returns the list of scatteringDataObjects read from the individual files
     """
 
     scatteringDataList = []
+    okFnames = fnames.copy()
     for fname in fnames:
         assert (
             fname.is_file()
         ), f"filename {fname} does not exist. Please supply valid filenames"
         # print(fname)
-        scatteringDataList += [scatteringDataObjFromNX(fname, readConfig)]
-    return scatteringDataList
+        try:
+            sdo = scatteringDataObjFromNX(fname, readConfig)
+            scatteringDataList += [sdo]
+        except Exception as e: 
+            logging.error(f"Could not read {fname=}, removing from filenames. Error: {e}")
+            okFnames.remove(fname)
+
+        # scatteringDataList += [scatteringDataObjFromNX(fname, readConfig)]
+    return scatteringDataList, okFnames
 
 
 if __name__ == "__main__":
