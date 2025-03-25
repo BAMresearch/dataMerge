@@ -348,6 +348,11 @@ class HDFPathsObj(gimmeItems):
         validator=validators.instance_of(str),
         converter=str,
     )
+    QSigma: Optional[str] = field(
+        default="/entry/result/QSigma",
+        validator=validators.instance_of(str),
+        converter=str,
+    )
     sampleName: str = field(
         default="/entry1/sample/name",
         validator=validators.instance_of(str),
