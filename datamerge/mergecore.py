@@ -670,18 +670,15 @@ class mergeCore:
                         ]
                     )
                     self.mData.QStd[binN] = DSQ.std
-                    self.mData.QSEM[binN] = np.sqrt(
+                    self.mData.QSEM[binN] = (
                         (
                             (
-                                (
-                                    self.preMData.QSigma[lowerIndex:upperIndex]
-                                    * self.preMData.wt[lowerIndex:upperIndex]
-                                )
-                                / (self.preMData.wt[lowerIndex:upperIndex].sum())
+                                self.preMData.QSigma[lowerIndex:upperIndex]
+                                * self.preMData.wt[lowerIndex:upperIndex]
                             )
                             ** 2
                         ).sum()
-                    )
+                    ) ** 0.5 / self.preMData.wt[lowerIndex:upperIndex].sum()
                     self.mData.QSigma[binN] = np.max(
                         [
                             self.mData.QStd[binN]
