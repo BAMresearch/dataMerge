@@ -683,7 +683,15 @@ class mergeCore:
                         ).sum()
                     )
                     self.mData.QSigma[binN] = np.max(
-                        [self.mData.QSEM[binN], DSQ.mean * self.mergeConfig.qeMin]
+                        [
+                            self.mData.QStd[binN]
+                            * np.sqrt(
+                                (self.preMData.wt[lowerIndex:upperIndex] ** 2).sum()
+                                / (self.preMData.wt[lowerIndex:upperIndex].sum()) ** 2
+                            ),
+                            self.mData.QSEM[binN],
+                            DSQ.mean * self.mergeConfig.qeMin,
+                        ]
                     )
                     self.mData.Mask[binN] = False
             return
