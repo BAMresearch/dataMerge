@@ -677,12 +677,25 @@ class mergeCore:
                         ]
                     )
                     self.mData.QStd[binN] = DSQ.std
-                    self.mData.QSEM[binN] = DSQ.std * np.sqrt(
-                        (self.preMData.wt[lowerIndex:upperIndex] ** 2).sum()
-                        / (self.preMData.wt[lowerIndex:upperIndex].sum()) ** 2
-                    )
+                    self.mData.QSEM[binN] = (
+                        (
+                            (
+                                self.preMData.QSigma[lowerIndex:upperIndex]
+                                * self.preMData.wt[lowerIndex:upperIndex]
+                            )
+                            ** 2
+                        ).sum()
+                    ) ** 0.5 / self.preMData.wt[lowerIndex:upperIndex].sum()
                     self.mData.QSigma[binN] = np.max(
-                        [self.mData.QSEM[binN], DSQ.mean * self.mergeConfig.qeMin]
+                        [
+                            self.mData.QStd[binN]
+                            * np.sqrt(
+                                (self.preMData.wt[lowerIndex:upperIndex] ** 2).sum()
+                                / (self.preMData.wt[lowerIndex:upperIndex].sum()) ** 2
+                            ),
+                            self.mData.QSEM[binN],
+                            DSQ.mean * self.mergeConfig.qeMin,
+                        ]
                     )
                     self.mData.Mask[binN] = False
             return

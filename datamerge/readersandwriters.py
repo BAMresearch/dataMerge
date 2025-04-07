@@ -53,6 +53,10 @@ def scatteringDataObjFromNX(
                 val = h5f[hPath][()]
                 if isinstance(val, np.ndarray):
                     val = val.flatten()
+            elif hPath == "None":
+                logging.info(
+                    f"HDF5 Path for {key=} not configured, using default values for NeXus file {filename=}."
+                )
             else:
                 assert key in readConfig.hdfDefaults.keys(), logging.error(
                     f"NeXus file {filename=} does not contain information for {key=} at specified HDF5 Path {hPath}, filling in the default value."
