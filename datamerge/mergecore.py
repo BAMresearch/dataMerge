@@ -4,7 +4,7 @@ import logging
 import time
 from attrs import field, define, validators, Factory
 import numpy as np
-from .findscaling import findScaling, findScaling_noPandas
+from .findscaling import findScaling_noPandas
 from .dataclasses import (
     mergeConfigObj,
     mergedDataObj,
@@ -14,7 +14,7 @@ from .dataclasses import (
 )
 
 from statsmodels.stats.weightstats import DescrStatsW
-from typing import List, Optional, Union
+from typing import List, Optional
 from multiprocessing.pool import ThreadPool as Pool
 import importlib.util
 import sys
@@ -267,13 +267,6 @@ class mergeCore:
                         axis=None,
                         dtype=scattering_data_per_range[0].Mask.dtype,
                     ),
-                    # Q= np.array([i.Q for i in scattering_data_per_range ]).flatten(),
-                    # I=np.array([i.I for i in scattering_data_per_range ]).flatten(),
-                    # ISigma=np.array([i.ISigma for i in scattering_data_per_range ]).flatten(),
-                    # QSigma=np.array([i.QSigma for i in scattering_data_per_range ]).flatten(),
-                    # Mask=np.array([i.Mask for i in scattering_data_per_range ]).flatten(),
-                    # sampleName=scattering_data_per_range[0].sampleName if scattering_data_per_range[0].sampleName is not None else 'na',
-                    # sampleOwner=scattering_data_per_range[0].sampleOwner if scattering_data_per_range[0].sampleOwner is not None else 'na',
                     sampleName=scattering_data_per_range[
                         0
                     ].sampleName,  #  not sure how this deals with none
@@ -283,11 +276,6 @@ class mergeCore:
                 )
             except np.VisibleDeprecationWarning:  # when would this occur?
                 scattering_data = scatteringDataObj(
-                    # Q=np.array([t for sd in scattering_data_per_range  for t in sd.Q]),
-                    # I=np.array([t for sd in scattering_data_per_range  for t in sd.I]),
-                    # ISigma=np.array([t for sd in scattering_data_per_range  for t in sd.ISigma]),
-                    # QSigma=np.array([t for sd in scattering_data_per_range  for t in sd.QSigma]),
-                    # Mask=np.array([t for sd in scattering_data_per_range  for t in sd.Mask]),
                     Q=np.concatenate(
                         [t for sd in scattering_data_per_range for t in sd.Q],
                         axis=None,
@@ -449,11 +437,6 @@ class mergeCore:
         assert self.preMData is not None, logging.warning(
             "self.preMData cannot be none at the merging step"
         )
-
-        # # set the supplementary information:
-        # self.mData.sampleName=self.preMData.sampleName #  not sure how this deals with none
-        # self.mData.sampleOwner=self.preMData.sampleOwner
-        # self.mData.configurations=self.preMData.configurations
 
         edgeIndices = np.searchsorted(
             self.preMData.Q, binEdges
@@ -766,7 +749,7 @@ class mergeCore:
         ]
         # logging.info(f"AutoScale done, scaling factors: {o}")
         # logging.debug(f"{self.mergeConfig.outputRanges=}")
-        # do I need to resort the data by Q? I don't think so... was part of the original though.
+
         # read all the data into a single dataframe, taking care of scaling, clipping and masking
         # logging.info(f"4. concatenating original data, t={time.time() - starttime}")
         self.concatAllUnmergedData()
