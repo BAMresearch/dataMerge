@@ -184,9 +184,25 @@ class mergeCore:
         # we need to organize these so ranges with autoscaleToConfig get done in sequence, based on interdependencies. 
         # start by indexing the ranges without autoScaling: 
         sorted_for_autoscaling = []
+        unsorted_for_autoscaling = []
+        for drange in self.ranges:
+            if drange.autoscaleToConfig is None:
+                sorted_for_autoscaling.append(drange)
+            else:
+                unsorted_for_autoscaling.append(drange)
+        # now we loop until no unsorted ranges remain, or no progress is made:
+        progress_made = True
+        # just sort, no scaling yet:
+        while (len(unsorted_for_autoscaling) > 0) and progress_made:
+            progress_made = False
+            for drange in unsorted_for_autoscaling:
+                oRange = self.findRangeByConfig(drange.autoscaleToConfig)
+                if oRange in sorted_for_autoscaling:
+                    sorted_for_autoscaling.append(drange)
+                    unsorted_for_autoscaling.remove(drange)
+                    progress_made = True
 
-
-        for drange in self.ranges:  # dfn = drange.rangeId, idf = drange
+        for drange in sorted_for_autoscaling:  # dfn = drange.rangeId, idf = drange
             drange.scale = 1.0  # reset in case of change of heart
             # if self.rangesDf.loc[dfn, 'autoscaletorange'] != dfn:
             if drange.autoscaleToConfig is not None:
@@ -202,7 +218,7 @@ class mergeCore:
                 # apply the q limit mask to oRange mask: 
                 for xRange in [oRange, drange]:
                     xRange.scatteringData.Mask |= xRange.scatteringData.returnMaskByQRange(
-                        qMin=xRange.qMinPreset, 
+                        qMin=xRange.qMinPreset,
                         qMax=xRange.qMaxPreset
                     )
                 # assert drange.autoscaleToRange <= len(
@@ -216,7 +232,7 @@ class mergeCore:
                     backgroundFit=False,  # just the scaling factor, please, no additional background.
                 )
                 fs.run()
-                drange.scale = float(fs.sc[0])
+                drange.scale = float(fs.sc[0]) * oRange.scale  # in case of multiple autoscalings
                 logging.info(
                     f"Scaling added to rangeindex: {drange.rangeId}, congfiguration: {drange.scatteringData.configuration} : {float(fs.sc[0])}"
                 )
