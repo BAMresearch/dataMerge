@@ -182,7 +182,7 @@ class mergeCore:
         # if any of the autoscaling dials is set to something else than itself, find the scaling factor between those datasets
 
         # we need to organize these so ranges with autoscaleToConfig get done in sequence, based on interdependencies. 
-        # start by indexing the ranges without autoScaling: 
+        # start by indexing the ranges without autoScaling:
         sorted_for_autoscaling = []
         unsorted_for_autoscaling = []
         for drange in self.ranges:
@@ -208,6 +208,7 @@ class mergeCore:
                 f"Could not resolve autoscaling for the following ranges due to circular or missing dependencies: {[drange.rangeId for drange in unsorted_for_autoscaling]}"
             )
 
+        # now perform the autoscaling in order:
         for drange in sorted_for_autoscaling:  # dfn = drange.rangeId, idf = drange
             drange.scale = 1.0  # reset in case of change of heart
             # if self.rangesDf.loc[dfn, 'autoscaletorange'] != dfn:
