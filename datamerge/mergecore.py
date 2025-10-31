@@ -192,6 +192,7 @@ class mergeCore:
                 unsorted_for_autoscaling.append(drange)
         # now we loop until no unsorted ranges remain, or no progress is made:
         progress_made = True
+        print(f'not autoscaling ranges f{[dr.scatteringData.configuration for dr in sorted_for_autoscaling]=}')
         # just sort, no scaling yet:
         while (len(unsorted_for_autoscaling) > 0) and progress_made:
             progress_made = False
@@ -201,6 +202,11 @@ class mergeCore:
                     sorted_for_autoscaling.append(drange)
                     unsorted_for_autoscaling.remove(drange)
                     progress_made = True
+                    print(f'scaling {drange.scatteringData.configuration=} to {oRange.scatteringData.configuration=}')
+        if len(unsorted_for_autoscaling) > 0:
+            logging.warning(
+                f"Could not resolve autoscaling for the following ranges due to circular or missing dependencies: {[drange.rangeId for drange in unsorted_for_autoscaling]}"
+            )
 
         for drange in sorted_for_autoscaling:  # dfn = drange.rangeId, idf = drange
             drange.scale = 1.0  # reset in case of change of heart
